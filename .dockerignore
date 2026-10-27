@@ -1,0 +1,11 @@
+# 构建上下文排除项：缩小镜像、避免把本地环境带进容器
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+tests/
+*.log
+.env
+.git/
+.github/

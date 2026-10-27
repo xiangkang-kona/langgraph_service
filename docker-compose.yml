@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+# 一键起停：docker compose up -d --build
+#   db  : PostgreSQL 16 + pgvector（业务库 / 知识库 / 检查点三合一）
+#   app : FastAPI 服务（首次启动自动建表灌种子，幂等）
+#   ui  : Streamlit 运营工作台（对话台 / 审批工作台 / 运行状态），访问 localhost:8501
+# 停止：docker compose down（加 -v 连数据卷一起删）
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: support-db
+    environment:
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD: support123
+      POSTGRES_DB: support
+    ports:
+      - "5432:5432"
+    volumes:
+      - support_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support -d support"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  app:
+    build: .
+    container_name: support-app
+    environment:
+      # 容器内走服务名 db，不是 localhost
+      DATABASE_URL: postgresql://support:support123@db:5432/support
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:?请先设置 DASHSCOPE_API_KEY 环境变量}
+      API_KEY: ${API_KEY:-dev-api-key-0001}
+      SERVICE_HOST: 0.0.0.0
+      SERVICE_PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # 初始化脚本幂等：已建表/已有种子数据时会直接跳过
+    command: ["sh", "-c", "python scripts/init_db.py && python run.py"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  ui:
+    build: ./frontend
+    container_name: support-ui
+    environment:
+      # 容器内直连后端服务名；API Key 与 app 保持同一来源
+      API_BASE: http://app:8000
+      API_KEY: ${API_KEY:-dev-api-key-0001}
+    ports:
+      # 宿主机端口可通过 UI_PORT 覆盖（8501 被其他程序占用时：$env:UI_PORT=8502）
+      - "${UI_PORT:-8501}:8501"
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  support_pgdata:

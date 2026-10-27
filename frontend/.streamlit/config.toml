@@ -1,0 +1,19 @@
+# 主题：浅色内容区 + 品牌蓝主色；侧边栏深色由 ui.py 的 CSS 覆盖
+[theme]
+base = "light"
+primaryColor = "#2563EB"
+backgroundColor = "#F6F8FB"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0F172A"
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

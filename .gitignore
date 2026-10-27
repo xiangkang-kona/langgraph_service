@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 环境与密钥（真实 Key 严禁入库，只用 .env.example 作模板）
+.env
+.env.*
+!.env.example
+
+# 运行日志
+*.log
+
+# 测试与缓存
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+
+# 本地数据
+*.db
+*.sqlite3

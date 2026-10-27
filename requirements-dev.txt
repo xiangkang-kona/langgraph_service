@@ -1,0 +1,4 @@
+# 开发/CI 依赖（运行镜像不需要）
+pytest
+pytest-asyncio
+ruff

@@ -1,0 +1,44 @@
+# 真实可用的 CI 流水线（对应 cicd_pipeline_demo.py 里讲过的三个阶段）
+#   1. test  : 静态检查 + 单测（fake model，不连数据库、不调外部 API）
+#   2. build : 构建生产镜像，验证 Dockerfile 可用
+# 说明：本文件需放在仓库根目录的 .github/workflows/ 下才会被 GitHub 执行
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: lint + pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: 代码检查
+        run: ruff check app tests frontend
+
+      - name: 单元测试
+        run: pytest -q
+
+  build:
+    name: docker build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 构建后端镜像
+        run: docker build -t support-app:ci .
+
+      - name: 构建前端镜像
+        run: docker build -t support-ui:ci ./frontend

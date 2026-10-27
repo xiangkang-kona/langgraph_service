@@ -1,0 +1,6 @@
+# 前端镜像构建上下文排除项
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
