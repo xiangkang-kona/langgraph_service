@@ -1,4 +1,4 @@
-# 生产版依赖（在项目 .venv 中安装：pip install -r requirements.txt）
+﻿# 生产版依赖（在项目 .venv 中安装：pip install -r requirements.txt）
 # langchain 系列与项目 .venv 现有版本对齐，其余为本次新增
 langchain==1.4.6
 langchain-core==1.6.10
