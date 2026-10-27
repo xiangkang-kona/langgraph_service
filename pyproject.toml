@@ -1,6 +1,9 @@
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# 测试里 from app... 导入业务包：显式把仓库根加入模块路径，
+# 保证裸 pytest 命令（CI 用法）与 python -m pytest（本地用法）行为一致
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 120
